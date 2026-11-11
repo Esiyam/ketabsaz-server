@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>کتاب‌ساز</title>
+<style>
+body{margin:0;font-family:sans-serif;background:#f4efe6;color:#222}
+header{background:#3e2723;color:#fff;padding:12px 16px;font-size:18px}
+.tabs{display:flex}.tabs button{flex:1;padding:12px;border:0;background:#d7ccc8;font-size:15px}.tabs .on{background:#fff8e1;font-weight:bold}
+section{display:none;padding:14px}section.on{display:block}
+label{display:block;margin:12px 0 4px;font-size:14px}
+input[type=text],textarea{width:100%;padding:10px;border:1px solid #bbb;border-radius:8px;font-size:16px;box-sizing:border-box}
+input[type=color]{width:56px;height:34px;padding:0;border:1px solid #bbb;border-radius:6px}
+.btn{background:#5d4037;color:#fff;border:0;border-radius:8px;padding:10px 14px;font-size:15px;margin:3px}
+.im{display:flex;align-items:center;gap:8px}.im img{height:44px;border-radius:6px}
+#tb{position:sticky;top:0;background:#efebe9;padding:4px;display:flex;flex-wrap:wrap;gap:3px;z-index:3;align-items:center}
+#tb button,#tb select{padding:7px 10px;font-size:15px;border:1px solid #bbb;border-radius:6px;background:#fff}
+#ed{min-height:320px;background:#fff;border:1px solid #bbb;border-radius:8px;padding:12px;font-size:18px;line-height:2;outline:0}
+#ed img,#pv img{max-width:100%;height:auto}
+#chs span{display:inline-block;padding:8px 12px;margin:3px;background:#d7ccc8;border-radius:16px}#chs .on{background:#5d4037;color:#fff}
+#pv{display:none;padding:16px;border-radius:8px;line-height:2;font-size:18px;margin-top:10px}
+#dr{display:none;position:fixed;top:48px;right:0;bottom:0;width:75%;max-width:300px;background:#3e2723;color:#fff;overflow:auto;z-index:9}#dr a{display:block;padding:15px 18px;border-bottom:1px solid rgba(255,255,255,.12)}#dr .g{background:#5d4037;padding:8px 18px;font-size:13px}
+#msg{padding:10px;font-size:16px;line-height:1.9}
+</style>
+</head>
+<body>
+<header><span onclick="dr()" style="font-size:26px;margin-left:14px">☰</span>📖 کتاب‌ساز</header>
+<div id="dr"><div class="g">فایل کتاب</div>
+<a onclick="newBook()">📄 کتاب جدید</a><a onclick="$('ob').click()">📂 باز کردن کتاب</a><a onclick="saveBook()">💾 ذخیره کتاب</a>
+<div class="g">تنظیمات کتاب</div>
+<a onclick="go(1)">📋 مطالب</a><a onclick="go(0)">👤 مشخصات کتاب</a><a onclick="go(3)">🖼️ تصاویر و آیکون‌ها</a>
+<div class="g">ساخت APK</div>
+<a onclick="go(4)">📱 پیش‌نمایش کتاب</a><a onclick="go(2)">📦 ساخت فایل نهایی</a></div>
+<input type="file" id="ob" accept=".json" style="display:none">
+
+<section id="s0" class="on">
+<label>عنوان کتاب</label><input type="text" data-f="title">
+<label>نام نویسنده</label><input type="text" data-f="author">
+<label>درباره‌ی نویسنده</label><textarea rows="4" data-f="about_author"></textarea>
+<label>رنگ پس‌زمینه‌ی کتاب</label><input type="color" data-f="book_bg" value="#fff8e1">
+<label>رنگ پس‌زمینه‌ی منوها</label><input type="color" data-f="menu_bg" value="#3e2723">
+</section>
+<section id="s3">
+<label>کاور کتاب</label><div class="im"><input type="file" accept="image/*" data-k="cover" data-w="800"><img id="p_cover"></div>
+<label>آیکون برنامه</label><div class="im"><input type="file" accept="image/*" data-k="icon" data-w="192" data-sq="1"><img id="p_icon"></div>
+<label>عکس نویسنده</label><div class="im"><input type="file" accept="image/*" data-k="author_photo" data-w="500"><img id="p_author_photo"></div>
+<label>عکس پس‌زمینه‌ی کتاب (اختیاری)</label><div class="im"><input type="file" accept="image/*" data-k="book_bg_image" data-w="900"><img id="p_book_bg_image"></div>
+<label>عکس پس‌زمینه‌ی منوها (اختیاری)</label><div class="im"><input type="file" accept="image/*" data-k="menu_bg_image" data-w="900"><img id="p_menu_bg_image"></div>
+</section>
+
+<section id="s1">
+<div id="chs"></div>
+<button class="btn" id="add">+ فصل جدید</button><button class="btn" id="del" style="background:#b71c1c">حذف فصل</button>
+<label>عنوان فصل</label><input type="text" id="ct">
+<div id="tb" onmousedown="if(event.target.tagName!='SELECT'&&event.target.type!='color')event.preventDefault()">
+<button onclick="cmd('bold')"><b>B</b></button>
+<button onclick="cmd('italic')"><i>I</i></button>
+<button onclick="cmd('underline')"><u>U</u></button>
+<select id="fs" onchange="cmd('fontSize',this.value);this.selectedIndex=0"><option>اندازه</option><option value="2">کوچک</option><option value="3">معمولی</option><option value="5">بزرگ</option><option value="7">خیلی بزرگ</option></select>
+<input type="color" value="#cc0000" title="رنگ متن" onchange="cmd('foreColor',this.value)">
+<input type="color" value="#ffeb3b" title="هایلایت" onchange="cmd('hiliteColor',this.value)">
+<button onclick="cmd('justifyRight')">⇥</button>
+<button onclick="cmd('justifyCenter')">↔</button>
+<button onclick="cmd('justifyLeft')">⇤</button>
+<button onclick="cmd('justifyFull')">≡</button>
+<button onclick="cmd('insertUnorderedList')">• لیست</button>
+<button onclick="var u=prompt('آدرس لینک:','https://');if(u)cmd('createLink',u)">🔗</button>
+<button onclick="cmd('unlink')">⛓️‍💥</button>
+<button onclick="document.getElementById('ii').click()">🖼️</button>
+<button onclick="cmd('removeFormat')">پاک‌کردن قالب</button>
+</div>
+<input type="file" id="ii" accept="image/*" style="display:none">
+<div id="ed" contenteditable="true"></div>
+<button class="btn" id="pvb">پیش‌نمایش فصل</button>
+<div id="pv"></div>
+</section>
+
+<section id="s2">
+<button class="btn" id="build" style="width:100%;font-size:18px;padding:14px">🚀 ساخت APK</button>
+<div id="msg"></div>
+</section>
+<section id="s4"><div id="pa"></div></section>
+
+<script>
+var $=function(i){return document.getElementById(i)}, ed=$("ed"), cur=0, sel=null;
+var B={title:"",author:"",about_author:"",book_bg:"#fff8e1",menu_bg:"#3e2723",imgs:{},chapters:[{title:"فصل اول",html:""}]};
+try{var d=localStorage.getItem("ks_draft");if(d)B=JSON.parse(d)}catch(e){}
+
+function save(){try{localStorage.setItem("ks_draft",JSON.stringify(B))}catch(e){}}
+function commit(){B.chapters[cur].title=$("ct").value;B.chapters[cur].html=ed.innerHTML;save()}
+function go(n){commit();for(var i=0;i<5;i++)$("s"+i).className=i==n?"on":"";$("dr").style.display="none";if(n==4)prev();window.scrollTo(0,0)}
+function dr(){var d=$("dr");d.style.display=d.style.display=="block"?"none":"block"}
+function prev(){var p=$("pa");p.style.cssText="background:"+B.book_bg+";padding:16px;border-radius:8px;line-height:2;font-size:18px";
+  var h="<div style='text-align:center'>"+(B.imgs.cover?"<img src='data:image/png;base64,"+B.imgs.cover+"' style='max-width:60%'>":"")+"<h1></h1><p></p></div>";
+  B.chapters.forEach(function(c){h+="<hr><h2 style='text-align:center'>"+c.title+"</h2>"+c.html});
+  p.innerHTML=h;p.querySelector("h1").textContent=B.title;p.querySelector("p").textContent=B.author}
+function newBook(){if(confirm("کتاب فعلی پاک شود و کتاب جدید شروع شود؟")){try{localStorage.removeItem("ks_draft")}catch(e){}location.reload()}}
+function saveBook(){commit();var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(B)],{type:"application/json"}));a.download=(B.title||"book")+".json";a.click();$("dr").style.display="none"}
+$("ob").onchange=function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var o=JSON.parse(r.result);if(!o.chapters)throw 1;B=o;save();location.reload()}catch(e){alert("فایل کتاب معتبر نیست")}};r.readAsText(f)};
+
+document.addEventListener("selectionchange",function(){var s=getSelection();if(s.rangeCount&&ed.contains(s.anchorNode))sel=s.getRangeAt(0)});
+function cmd(c,v){ed.focus();if(sel){var s=getSelection();s.removeAllRanges();s.addRange(sel)}document.execCommand(c,false,v||null);commit()}
+ed.oninput=commit;$("ct").oninput=function(){B.chapters[cur].title=this.value;list();save()};
+
+function list(){var c=$("chs");c.innerHTML="";B.chapters.forEach(function(ch,i){var s=document.createElement("span");s.textContent=(i+1)+". "+(ch.title||"بدون عنوان");s.className=i==cur?"on":"";s.onclick=function(){commit();cur=i;load()};c.appendChild(s)})}
+function load(){$("ct").value=B.chapters[cur].title;ed.innerHTML=B.chapters[cur].html;$("pv").style.display="none";list()}
+$("add").onclick=function(){commit();B.chapters.push({title:"فصل "+(B.chapters.length+1),html:""});cur=B.chapters.length-1;load()};
+$("del").onclick=function(){if(B.chapters.length>1&&confirm("این فصل حذف شود؟")){B.chapters.splice(cur,1);cur=0;load();save()}};
+$("pvb").onclick=function(){commit();var p=$("pv");p.style.background=B.book_bg;p.innerHTML="<h2 style='text-align:center'>"+(B.chapters[cur].title||"")+"</h2>"+B.chapters[cur].html;p.style.display="block";p.scrollIntoView()};
+
+function img(file,w,sq,png,cb){var r=new FileReader();r.onload=function(){var i=new Image();i.onload=function(){
+  var c=document.createElement("canvas"),sw=i.width,sh=i.height,sx=0,sy=0;
+  if(sq){var m=Math.min(sw,sh);sx=(sw-m)/2;sy=(sh-m)/2;sw=sh=m}
+  var k=Math.min(1,w/sw);c.width=sw*k;c.height=sh*k;c.getContext("2d").drawImage(i,sx,sy,sw,sh,0,0,c.width,c.height);
+  cb(c.toDataURL(png?"image/png":"image/jpeg",.82))};i.src=r.result};r.readAsDataURL(file)}
+$("ii").onchange=function(){var f=this.files[0];if(f)img(f,700,0,0,function(u){cmd("insertImage",u)});this.value=""};
+
+document.querySelectorAll("[data-f]").forEach(function(e){e.value=B[e.dataset.f]||e.value;e.oninput=function(){B[e.dataset.f]=e.value;save()}});
+document.querySelectorAll("[data-k]").forEach(function(e){var k=e.dataset.k;
+  if(B.imgs[k])$("p_"+k).src="data:image/png;base64,"+B.imgs[k];
+  e.onchange=function(){var f=e.files[0];if(!f)return;img(f,+e.dataset.w,e.dataset.sq,k=="icon",function(u){B.imgs[k]=u.split(",")[1];$("p_"+k).src=u;save()})}});
+
+$("build").onclick=async function(){
+  commit();var m=$("msg");
+  if(!B.title){m.textContent="اول عنوان کتاب رو تو تب «اطلاعات کتاب» بنویس.";return}
+  m.textContent="⏳ در حال ساخت APK... ممکنه یکی دو دقیقه طول بکشه.";
+  var d={title:B.title,author:B.author,about_author:B.about_author,book_bg:B.book_bg,menu_bg:B.menu_bg,
+    chapters:B.chapters.map(function(c){return{title:c.title,html:c.html}})};
+  for(var k in B.imgs)d[k]=B.imgs[k];
+  try{var r=await fetch("/build",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)});
+    var j=await r.json();
+    if(j.url){var u=j.url.replace(/^https?:\/\/[^\/]+/,"");m.innerHTML="✅ آماده شد!<br><a href='"+u+"' style='font-size:20px'>⬇️ دانلود APK</a>"}
+    else m.textContent="❌ خطا: "+(j.error||"نامشخص")}
+  catch(e){m.textContent="❌ ارتباط با سرور برقرار نشد."}};
+load();
+</script>
+</body>
+</html>

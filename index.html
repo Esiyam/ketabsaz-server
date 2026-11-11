@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="book.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:sans-serif;color:#222;line-height:2;background:#fff8e1 center/cover fixed}
+#top{position:fixed;top:0;right:0;left:0;height:52px;display:flex;align-items:center;gap:10px;padding:0 12px;color:#fff;background:#3e2723 center/cover;z-index:5}
+#top b{flex:1;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+button{border:0;border-radius:8px;padding:8px 14px;font-size:15px;color:#fff;background:rgba(0,0,0,.35)}
+#page{padding:66px 18px 90px;font-size:18px}
+#page h2{text-align:center}
+.txt{white-space:pre-wrap;text-align:justify}
+.center{text-align:center}
+.rt img{max-width:100%;height:auto}.rt a{color:#1565c0}
+.center img{max-width:70%;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+#nav{position:fixed;bottom:0;right:0;left:0;display:flex;justify-content:space-between;padding:10px 14px;background:#3e2723 center/cover}
+#menu{position:fixed;top:52px;right:0;bottom:0;width:78%;max-width:320px;background:#3e2723 center/cover;color:#fff;overflow:auto;display:none;z-index:6}
+#menu div{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.15)}
+</style>
+</head>
+<body>
+<div id="top"><button id="mb">☰</button><b id="ttl"></b></div>
+<div id="menu"></div>
+<div id="page"></div>
+<div id="nav"><button id="nx">بعدی ▶</button><button id="pv">◀ قبلی</button></div>
+<script>
+var B = BOOK, pages = [], cur = 0;
+function $(i){return document.getElementById(i)}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x)e.textContent=x;return e}
+function hasImg(n,cb){var i=new Image();i.onload=function(){cb()};i.src=n}
+function bg(node,n){hasImg(n,function(){node.style.backgroundImage="url("+n+")"})}
+
+document.body.style.backgroundColor = B.book_bg;
+["top","nav","menu"].forEach(function(id){$(id).style.backgroundColor=B.menu_bg;bg($(id),"menu_bg.png")});
+bg(document.body,"book_bg.png");
+$("ttl").textContent = B.title;
+
+pages.push({t:"جلد کتاب",f:function(p){
+  var d=el("div","center");
+  hasImg("cover.png",function(){var i=new Image();i.src="cover.png";d.insertBefore(i,d.firstChild)});
+  d.appendChild(el("h1","",B.title));
+  d.appendChild(el("p","",B.author));
+  p.appendChild(d)}});
+B.chapters.forEach(function(c){pages.push({t:c.title,f:function(p){
+  var x=el("div","rt");x.innerHTML=c.html||"";p.appendChild(el("h2","",c.title));p.appendChild(x)}})});
+if(B.author||B.about_author){pages.push({t:"درباره‌ی نویسنده",f:function(p){
+  var d=el("div","center");
+  hasImg("author.png",function(){var i=new Image();i.src="author.png";d.insertBefore(i,d.firstChild)});
+  d.appendChild(el("h2","",B.author));
+  d.appendChild(el("div","txt",B.about_author||""));
+  p.appendChild(d)}})}
+
+function show(i){
+  cur=Math.max(0,Math.min(pages.length-1,i));
+  var p=$("page");p.innerHTML="";pages[cur].f(p);
+  $("menu").style.display="none";window.scrollTo(0,0)}
+pages.forEach(function(pg,i){var d=el("div","",pg.t);d.onclick=function(){show(i)};$("menu").appendChild(d)});
+$("mb").onclick=function(){var m=$("menu");m.style.display=m.style.display=="block"?"none":"block"};
+$("nx").onclick=function(){show(cur+1)};
+$("pv").onclick=function(){show(cur-1)};
+show(0);
+</script>
+</body>
+</html>
